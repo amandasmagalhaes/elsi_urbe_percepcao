@@ -1,0 +1,201 @@
+---
+title: "Neighborhood Characteristics and Residents’ Perceptions: The ELSI-Urbe Project"
+author: "Amanda Silva Magalhães; Amanda Cristina de Souza Andrade; "
+date: today
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-location: left
+    number-sections: true
+    code-fold: true
+execute:
+  freeze: auto
+---
+
+# Introduction
+## Aim
+
+# Methods
+## ELSI-Urbe
+### Virtual audit
+## ELSI-Brazil
+## Statistical analysis
+
+```{r}
+#| label: Packages
+#| code-summary: Packages
+#| warning: false
+#| message: false
+
+library(pacman)
+p_load(tidyverse, haven, here, survey, srvyr, gtsummary, kableExtra, glmmTMB)
+```
+
+```{r}
+#| label: PSU
+#| code-summary: PSU
+
+options(survey.lonely.psu = "adjust")
+```
+
+```{r}
+#| label: Banco de dados
+#| code-summary: Banco de dados
+
+df <- read_dta(here("elsi_brasil_auditoria_virtual.dta"))
+```
+
+
+# Results
+
+```{r}
+#| label: Table 1
+#| code-summary: Table 1
+#| warning: false
+#| message: false
+
+df %>% 
+  filter(zona == 1, !is.na(identificador)) %>% 
+  mutate(
+    sexo = factor(sexo, levels = c(0, 1), labels = c("Female", "Male")),
+    
+    faixaetaria = factor(faixaetaria, 
+                         levels = c(1, 2, 3, 4), 
+                         labels = c("50-59", "60-69", "70-79", "≥80")),
+    
+    cor_raca = factor(cor_raca, levels = c(0, 1), labels = c("White", "Non-white")),
+    
+    escolaridade2 = factor(escolaridade2, 
+                           levels = c(1, 2, 3), 
+                           labels = c("<4", "4-7", "≥8")),
+    
+    est_civil = factor(est_civil, 
+                       levels = c(0, 1), 
+                       labels = c("Unmarried", "Married or cohabiting")),
+    
+    dcnt = factor(dcnt, levels = c(0, 1, 2), labels = c("0", "1", "≥2")),
+    
+    aas = factor(aas, levels = c(0, 1), 
+                 labels = c("Very poor/Poor", "Excellent/Very good/Good/Fair")),
+    
+    rendadompc2corr = factor(rendadompc2corr, 
+                             levels = c(1, 2, 3), 
+                             labels = c("1st tertile: ≤933", 
+                                        "2nd tertile: >933-1,500", 
+                                        "3rd tertile: >1,500")),
+    
+    anos_municipio = as.numeric(anos_municipio),
+
+    cair_passeios = factor(cair_passeios, levels = c(0,1), labels = c("No","Yes")),
+    subir_transporte = factor(subir_transporte, levels = c(0,1), labels = c("No","Yes")),
+    atravessar_rua = factor(atravessar_rua, levels = c(0,1), labels = c("No","Yes")),
+    bom_lugar = factor(bom_lugar, levels = c(0,1), labels = c("No","Yes")),
+    bom_lugar_brincar = factor(bom_lugar_brincar, levels = c(0,1), labels = c("No","Yes")),
+    agradavel_exercicios = factor(agradavel_exercicios, levels = c(0,1), labels = c("No","Yes"))
+    
+  ) %>% 
+  
+  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado) %>% 
+  
+  tbl_svysummary(
+    by = sexo,
+    
+    include = c(
+      faixaetaria, cor_raca, escolaridade2, est_civil, dcnt, aas,
+      rendadompc2corr, anos_municipio,
+      cair_passeios, subir_transporte, atravessar_rua,
+      bom_lugar, bom_lugar_brincar, agradavel_exercicios
+    ),
+    
+    label = list(
+      faixaetaria ~ "Age group",
+      cor_raca ~ "Race/Color",
+      escolaridade2 ~ "Years of schooling",
+      est_civil ~ "Marital status",
+      dcnt ~ "Number of chronic diseases",
+      aas ~ "Self-rated health",
+      rendadompc2corr ~ "Per capita household income in tertiles (R$)",
+      anos_municipio ~ "Length of residence (years) [mean (SD)]",
+      cair_passeios ~ "Fear of falling due to sidewalk defects",
+      subir_transporte ~ "Difficulty boarding public transport",
+      atravessar_rua ~ "Difficulty crossing the street",
+      bom_lugar ~ "Neighborhood is a good place to live",
+      bom_lugar_brincar ~ "Good neighborhood for children and adolescents",
+      agradavel_exercicios ~ "Neighborhood pleasant for walking, running, or cycling"
+    ),
+    
+    statistic = list(
+      all_categorical() ~ "{p}",
+      all_continuous() ~ "{mean} ({sd})"
+    ),
+    
+    digits = list(
+      all_categorical() ~ 1,
+      all_continuous() ~ 1
+    ),
+    
+    missing = "no"
+    
+  ) %>% 
+  
+  add_overall(last = FALSE) %>%
+
+  add_p(
+      pvalue_fun = ~ style_pvalue(.x, digits = 3)
+      ) %>% 
+
+  add_ci(
+    style_fun = list(
+      all_categorical() ~ function(x) sprintf("%.1f", x * 100),
+      all_continuous() ~ function(x) style_sigfig(x, digits = 1)
+    )
+  ) %>% 
+  
+  modify_table_body(
+    ~ .x %>%
+      dplyr::mutate(
+        dplyr::across(
+          starts_with("ci_stat"),
+          ~ ifelse(variable == "anos_municipio", "", .x)
+        )
+      )
+  ) %>% 
+  
+  modify_fmt_fun(
+    update = list(
+      all_stat_cols() ~ function(x) gsub("%", "", x),
+      starts_with("ci_stat") ~ function(x) {
+        x <- gsub("%", "", x)
+        x <- gsub(", ", " - ", x)
+        ifelse(x == "" | is.na(x), "", paste0("(", x, ")"))
+      }
+    )
+  ) %>%
+  
+  modify_header(
+    label = "**Characteristic**",
+    all_stat_cols() ~ "**%**",
+    starts_with("ci_stat") ~ "**(95% CI)**",
+    p.value = "**p-value**"
+  ) %>% 
+  
+  modify_spanning_header(
+    c(stat_0, ci_stat_0) ~ "**Total (n=2,794)**",
+    c(stat_1, ci_stat_1) ~ "**Female (n=1,651)**",
+    c(stat_2, ci_stat_2) ~ "**Male (n=1,143)**"
+  ) %>% 
+  
+  modify_footnote(everything() ~ NA) %>% 
+  
+  as_gt() %>% 
+  
+  gt::tab_source_note(
+    source_note = "Note: Missing values for Race/Color (n=73); Years of schooling (n=154); Number of chronic diseases (n=40); Self-rated health (n=59); Per capita household income (n=549); Length of residence (n=96)."
+  )
+```
+
+
+```{r}
+#teste
+```
