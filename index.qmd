@@ -261,12 +261,17 @@ df %>%
 #| label: Distribution of individuals in census tracts and virtual urban audit status
 #| code-summary: Distribution of individuals in census tracts and virtual urban audit status
 
+df <- df %>%
+  mutate(setor_auditoria = ifelse(!is.na(identificador), 1, 0))
+
 df %>%
   filter(zona == 1) %>%
   mutate(
-    setor_auditoria = factor(setor_auditoria, 
-                              levels = c(0, 1), 
-                              labels = c("No", "Yes"))
+    setor_auditoria = factor(
+      setor_auditoria,
+      levels = c(0, 1),
+      labels = c("No", "Yes")
+    )
   ) %>%
   select(setor_auditoria) %>%
   tbl_summary(
@@ -287,6 +292,8 @@ df %>%
 #| code-summary: Individual characteristics and neighborhood perceptions stratified by sex
 #| warning: false
 #| message: false
+
+options(survey.lonely.psu = "adjust")
 
 df %>% 
   filter(zona == 1, !is.na(identificador)) %>% 
@@ -318,7 +325,7 @@ df %>%
     bom_lugar_brincar = factor(bom_lugar_brincar, levels = c(0,1), labels = c("No","Yes")),
     agradavel_exercicios = factor(agradavel_exercicios, levels = c(0,1), labels = c("No","Yes"))
   ) %>% 
-  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado) %>% 
+  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado, nest = TRUE) %>%
   tbl_svysummary(
     by = sexo,
     include = c(
@@ -441,26 +448,25 @@ outcome_vars <- names(outcome_labels)
 # Adjustment variables
 adjustments <- c("sexo", "faixaetaria", "cor_raca", "escolaridade2")
 
-# 4. Function to generate and save each individual regression row
+# 4. Function to generate one regression row
 run_model_row <- function(outcome_var, exp_var) {
-  
-  # Formula: Outcome ~ Exposure + Adjustments + (1 | Census Tract)
-  model_formula <- as.formula(paste(outcome_var, "~", exp_var, "+", 
-                                   paste(adjustments, collapse = " + "), "+ (1 | census_tract)"))
-  
-  # Fit Multilevel Logistic Regression Model
+
+  model_formula <- as.formula(
+    paste(outcome_var, "~", exp_var, "+",
+          paste(adjustments, collapse = " + "),
+          "+ (1 | census_tract)")
+  )
+
   model_fit <- glmmTMB(
     formula = model_formula,
     data = analysis_data,
     family = binomial(link = "logit"),
     weights = normalized_weight
   )
-  
-  # Save the model object to the Global Environment with a descriptive name
+
   saved_model_name <- paste0("fit_", outcome_var, "_", exp_var)
   assign(saved_model_name, model_fit, envir = .GlobalEnv)
-  
-  # Format the regression results for the table
+
   model_fit %>%
     tbl_regression(
       exponentiate = TRUE,
@@ -471,44 +477,41 @@ run_model_row <- function(outcome_var, exp_var) {
     remove_row_type(type = "header")
 }
 
-# 5. Loop and Stacking with Group Headers
+# 5. Language
 theme_gtsummary_language("en")
 
-# Create a list of 6 tables (one for each perception outcome)
+# 6. Create tables for each outcome
 table_list <- map(outcome_vars, function(out_v) {
-  
-  # For each outcome, stack its 6 neighborhood indicators
+
   map(exposure_vars, ~run_model_row(out_v, .x)) %>%
-    tbl_stack() %>%
-    # This filter removes the empty/placeholder lines (like "cond") 
-    # but keeps the indicator names (Pathway accessibility, etc.)
-    modify_table_body(~.x %>% dplyr::filter(row_type != "label"))
+    tbl_stack()
+
 })
 
-# Final stack combining all blocks with their respective headers
+# 7. Final table
 final_table <- tbl_stack(
   tbls = table_list,
-  # This creates the section titles (Fear of falling..., etc.)
   group_header = as.character(outcome_labels[outcome_vars])
 ) %>%
-  # 6. Final Global Formatting
   modify_header(
-    label = "**Neighborhood Indicators**", # Label for the first column
+    label = "**Neighborhood Indicators**",
     estimate = "**OR**",
-    conf.low = "**95% CI**",
+    conf.low = "**95% CI (Lower)**",
+    conf.high = "**95% CI (Upper)**",
     p.value = "**p-value**"
   ) %>%
   modify_spanning_header(
-    c(estimate, conf.low, conf.high, p.value) ~ "**Neighborhood Indicators and Perceptions**"
+    c(estimate, conf.low, conf.high, p.value) ~
+      "**Neighborhood Indicators and Perceptions**"
   ) %>%
   modify_footnote(
     label ~ "Each row represents a separate GLMM with a random intercept for census tract, adjusted for sex, age, race/color, and education."
   ) %>%
   modify_footnote(
-    c(estimate) ~ "OR = Odds Ratio; CI = Confidence Interval",
+    estimate ~ "OR = Odds Ratio; CI = Confidence Interval",
     abbreviation = TRUE
   )
 
-# Display result
+# 8. Display table
 final_table
 ```
