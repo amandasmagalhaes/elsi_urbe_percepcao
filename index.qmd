@@ -12,7 +12,7 @@ format:
     page-layout: full
 execute:
   freeze: auto
-  cache: true
+  #cache: true
 ---
 
 ```{r}
