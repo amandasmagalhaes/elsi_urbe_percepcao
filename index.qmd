@@ -385,14 +385,14 @@ df %>%
       starts_with("ci_stat") ~ function(x) {
         x <- gsub("%", "", x)
         x <- gsub(", ", " - ", x)
-        ifelse(x == "" | is.na(x), "", paste0("(", x, ")"))
+        ifelse(x == "" | is.na(x), "", x)
       }
     )
   ) %>%
   modify_header(
     label = "**Characteristic**",
     all_stat_cols() ~ "**%**",
-    starts_with("ci_stat") ~ "**(95% CI)**",
+    starts_with("ci_stat") ~ "**95% CI**",
     p.value = "**p-value**"
   ) %>% 
   modify_spanning_header(
@@ -413,16 +413,13 @@ df %>%
 #| warning: false
 #| message: false
 
-# 1. Data preparation and weights
 analysis_data <- df %>%
-  filter(zona == 1,
-         !is.na(identificador)) %>%
+  filter(zona == 1, !is.na(identificador)) %>%
   mutate(
     census_tract = factor(setor),
     normalized_weight = peso_calibrado / mean(peso_calibrado, na.rm = TRUE)
   )
 
-# 2. Labels for exposures
 exposure_labels <- c(
   dom_urbana1_escala = "Pathway accessibility",
   dom_urbana2_escala = "Surface and continuity",
@@ -432,7 +429,6 @@ exposure_labels <- c(
   dom_desordem2_escala = "Absence of building and green spaces"
 )
 
-# 3. Labels for binary outcomes
 outcome_labels <- c(
   cair_passeios = "Fear of falling due to sidewalk defects",
   subir_transporte = "Difficulty boarding public transport",
@@ -444,11 +440,8 @@ outcome_labels <- c(
 
 exposure_vars <- names(exposure_labels)
 outcome_vars <- names(outcome_labels)
-
-# Adjustment variables
 adjustments <- c("sexo", "faixaetaria", "cor_raca", "escolaridade2")
 
-# 4. Function to generate one regression row
 run_model_row <- function(outcome_var, exp_var) {
 
   model_formula <- as.formula(
@@ -464,54 +457,39 @@ run_model_row <- function(outcome_var, exp_var) {
     weights = normalized_weight
   )
 
-  saved_model_name <- paste0("fit_", outcome_var, "_", exp_var)
-  assign(saved_model_name, model_fit, envir = .GlobalEnv)
+  lbl_list <- list()
+  lbl_list[[exp_var]] <- exposure_labels[[exp_var]]
 
-  model_fit %>%
-    tbl_regression(
-      exponentiate = TRUE,
-      include = all_of(exp_var),
-      pvalue_fun = ~style_pvalue(.x, digits = 3),
-      label = list(as.symbol(exp_var) ~ exposure_labels[[exp_var]])
+  tbl_regression(
+    model_fit,
+    include = all_of(exp_var),
+    exponentiate = TRUE,
+    label = lbl_list,
+    estimate_fun = function(x) style_number(x, digits = 1),
+    pvalue_fun = function(x) style_pvalue(x, digits = 3),
+    show_single_row = all_of(exp_var)
+  ) %>%
+    modify_table_body(
+      ~ .x %>%
+        mutate(ci = gsub(",", " -", ci)) %>%
+        select(-conf.low, -conf.high)
     ) %>%
-    remove_row_type(type = "header")
+    modify_header(
+      label = "**Neighborhood Indicators**",
+      estimate = "**OR**",
+      ci = "**95% CI**"
+    )
 }
 
-# 5. Language
-theme_gtsummary_language("en")
-
-# 6. Create tables for each outcome
 table_list <- map(outcome_vars, function(out_v) {
-
-  map(exposure_vars, ~run_model_row(out_v, .x)) %>%
-    tbl_stack()
-
+  sub_tables <- map(exposure_vars, ~run_model_row(out_v, .x))
+  tbl_stack(sub_tables)
 })
 
-# 7. Final table
 final_table <- tbl_stack(
   tbls = table_list,
   group_header = as.character(outcome_labels[outcome_vars])
-) %>%
-  modify_header(
-    label = "**Neighborhood Indicators**",
-    estimate = "**OR**",
-    conf.low = "**95% CI (Lower)**",
-    conf.high = "**95% CI (Upper)**",
-    p.value = "**p-value**"
-  ) %>%
-  modify_spanning_header(
-    c(estimate, conf.low, conf.high, p.value) ~
-      "**Neighborhood Indicators and Perceptions**"
-  ) %>%
-  modify_footnote(
-    label ~ "Each row represents a separate GLMM with a random intercept for census tract, adjusted for sex, age, race/color, and education."
-  ) %>%
-  modify_footnote(
-    estimate ~ "OR = Odds Ratio; CI = Confidence Interval",
-    abbreviation = TRUE
-  )
+)
 
-# 8. Display table
 final_table
 ```
