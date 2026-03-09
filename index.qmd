@@ -16,6 +16,7 @@ execute:
 ---
 
 
+
 ```{r}
 #| label: Packages
 #| code-summary: Packages
@@ -27,37 +28,62 @@ p_load(tidyverse, haven, here, survey, srvyr, gtsummary, kableExtra, glmmTMB, br
 ```
 
 ```{r}
-#| label: Banco de dados
-#| code-summary: Banco de dados
+#| label: Database
+#| code-summary: Database
 
 df <- read_dta(here("elsi_brasil_auditoria_virtual.dta"))
 ```
 
 
+
 # Introduction
+
 ## Aim
+
 This study aimed to investigate the association between neighborhood physical characteristics assessed through virtual audits and older adults’ perceptions in Brazil.
+
 # Methods
+
 ## ELSI-Urbe
+
 The present research is part of the project “The Influence of the Physical and Social Environment on the Health of Older Brazilian Adults: A Longitudinal Multi-Method Population-Based Study” (ELSI-Urbe), initiated in 2021 by the Observatory for Urban Health in Belo Horizonte (OSUBH) at the Federal University of Minas Gerais (UFMG), in partnership with the Center for Studies in Public Health and Aging at UFMG and the René Rachou Institute – Fiocruz Minas of the Oswaldo Cruz Foundation.
+
 The ELSI-Urbe project investigates how physical and social neighborhood characteristics influence the health and well-being of older adults over time. It is part of the broader Brazilian Longitudinal Study of Aging (ELSI-Brazil) and uses data from its participants to understand the long-term effects of urban environments on aging ([Coelho et al., 2025](https://doi.org/10.1007/s11524-025-00998-5)). The project integrates individual-level data from ELSI-Brazil with ultra-local contextual information from secondary sources and virtual audits, aggregated across different geographic units. Only participants living in urban areas were included.
+
 ## ELSI-Brazil
-The ELSI-Brazil is a nationally representative, population-based cohort study of community-dwelling adults aged 50 years or older, living in 70 municipalities across the five Brazilian regions. The sampling process was conducted in stages, combining the stratification of primary sampling units (municipalities), census tracts, and households. The first wave was conducted in 2015–2016, the second in 2019–2021, and the third in 2024–2025. All residents aged 50 years or older in selected households were eligible to participate in interviews using a structured questionnaire and physical measurements. Further details about ELSI-Brazil are available in previous publications ([Lima-Costa et al., 2018](https://doi.org/10.1093/aje/kwx387); [Lima-Costa et al., 2023](https://doi.org/10.1093/ije/dyac132)) and on the ([ELSI-Brazil website](https://elsi.cpqrr.fiocruz.br/en/home-english/)).
+
+The ELSI-Brazil is a nationally representative, population-based cohort study of community-dwelling adults aged 50 years or older, living in 70 municipalities across the five Brazilian regions. The sampling process was conducted in stages, combining the stratification of primary sampling units (municipalities), census tracts, and households. The first wave was conducted in 2015–2016, the second in 2019–2021, and the third in 2024–2025. All residents aged 50 years or older in selected households were eligible to participate in interviews using a structured questionnaire and physical measurements. Further details about ELSI-Brazil are available in previous publications ([Lima-Costa et al., 2018](https://doi.org/10.1093/aje/kwx387); [Lima-Costa et al., 2023](https://doi.org/10.1093/ije/dyac132)) and on the [ELSI-Brazil website](https://elsi.cpqrr.fiocruz.br/en/home-english/).
+
 ## Virtual audit
+
 The ELSI-Urbe Virtual Audit subproject was conducted using a systematic observation method between April and October 2024, based on available Google Street View images. The audit was performed at the street-segment level, considering both sides of the street, and later aggregated into census tracts, which were defined as neighborhoods. The sampling process was carried out in stages, sequentially selecting municipalities (the most populous municipality participating in ELSI-Brazil from each federative unit, with 20 available), census tracts (with ELSI-Brazil interviews), and random street segments. Data collection was conducted by a single trained rater using a multidimensional instrument and a field manual.
+
 ## Study sample
+
 The analytical sample followed a two-level multilevel structure, with individuals from the second wave of ELSI-Brazil nested within their residential census tracts. The eligible population comprised participants residing in urban areas whose census tracts had available virtual audit data (n = 2,794 individuals nested within 218 census tracts).
+
 ## Outcomes
+
 To be defined.
+
 ## Exposures
+
 Exposure variables consisted of six indicators derived from the virtual audit data. Composite indicators were created based on urban infrastructure, traffic, and physical disorder, resulting in two components for each of the three domains assessed, as defined in a previous study.
+
 For the urban infrastructure domain, the first subdomain, pathway accessibility, included the items “street condition,” “sidewalk extends along the entire segment,” and “unobstructed sidewalk.” The second subdomain, surface and continuity, consisted of the items “street material,” “presence of sidewalks,” and “sidewalks even along the entire segment” (total variance: 59.7%; Cronbach’s alpha: 0.672).
+
 In the traffic domain, the first subdomain, markings and controls, comprised the items “lane markings,” “median lane,” “traffic control devices,” “crosswalk,” and “public transport stop.” The second subdomain, speed and bus lane, included the items “speed control devices” and “dedicated bus lane” (total variance: 48.8%; Cronbach’s alpha: 0.675).
+
 In the physical disorder domain, the first subdomain, absence of infrastructure and vegetation, was represented by the items “condition of electrical wires,” “absence of trees,” and “absence of gardens or potted plants.” The second subdomain, absence of buildings and green spaces, consisted of the items “buildings in poor condition” and “absence of parks or green spaces” (total variance: 61.1%; Cronbach’s alpha: 0.617).
+
 ## Adjustment variables
+
 Adjustment variables included sex (female and male), age group (50–59, 60–69, 70–79, and ≥80 years), race/color (white and non-white), and education (<4, 4–7, and ≥8 years of schooling).
+
 ## Statistical analysis
+
 Descriptive statistics were calculated using frequency distributions (%), means, and standard deviations (SD), accounting for the complex sampling design and individual weights using the survey package. Associations between exposures and outcomes were examined using prevalence ratios (PR) and 95% confidence intervals (CI), estimated through multilevel Poisson regression models with a log link and a random intercept for census tract, adjusted for sociodemographic variables. Normalized individual sampling weights were incorporated into the regression models, which were fitted using the glmmTMB package. The significance level was set at 5%. All analyses were conducted using R software (R version 4.5.0; R Development Core Team).
+
 
 
 # Results
@@ -646,12 +672,6 @@ final_table_ct_city <- tbl_stack(
   tbls = table_list_ct_city,
   group_header = outcome_labels[outcome_vars]
 )
-
-final_table_ct_city %>%
-  as_gt() %>%
-  gt::tab_options(
-    table.width = gt::pct(100)
-  )
 
 final_table_ct_city %>%
   as_gt() %>%
