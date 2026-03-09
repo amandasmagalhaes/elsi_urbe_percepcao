@@ -12,7 +12,7 @@ format:
     page-layout: full
 execute:
   freeze: auto
-  #cache: true
+  cache: true
 ---
 
 ```{r}
@@ -35,9 +35,11 @@ df <- read_dta(here("elsi_brasil_auditoria_virtual.dta"))
 
 # Introduction
 ## Aim
+This study aimed to examine the association between older adults’ perceptions of their neighborhood and its physical characteristics assessed through virtual urban audits in Brazil.
 
 # Methods
 ## ELSI-Urbe
+
 ### Virtual audit
 ## ELSI-Brazil
 ## Statistical analysis
@@ -502,15 +504,13 @@ final_table_ct <- tbl_stack(
 
 final_table_ct %>%
   as_gt() %>%
-  gt::fmt_markdown(columns = label) %>%
+  gt::fmt_markdown(columns = everything()) %>%
   gt::cols_width(
     label ~ gt::px(500)
   ) %>%
   gt::tab_options(
     table.width = gt::pct(100)
   )
-
-final_table_ct
 ```
 
 ```{r}
@@ -606,15 +606,13 @@ final_table_ct_city %>%
 
 final_table_ct_city %>%
   as_gt() %>%
-  gt::fmt_markdown(columns = label) %>%
+  gt::fmt_markdown(columns = everything()) %>%
   gt::cols_width(
     label ~ gt::px(500)
   ) %>%
   gt::tab_options(
     table.width = gt::pct(100)
   )
-
-final_table_ct_city
 ```
 
 ```{r}
@@ -685,15 +683,13 @@ final_table_ct_poisson <- tbl_stack(
 
 final_table_ct_poisson %>%
   as_gt() %>%
-  gt::fmt_markdown(columns = label) %>%
+  gt::fmt_markdown(columns = everything()) %>%
   gt::cols_width(
     label ~ gt::px(500)
   ) %>%
   gt::tab_options(
     table.width = gt::pct(100)
   )
-
-final_table_ct_poisson
 ```
 
 
@@ -762,13 +758,11 @@ final_table_ct_city_poisson <- tbl_stack(
 
 final_table_ct_city_poisson %>%
   as_gt() %>%
-  gt::fmt_markdown(columns = label) %>%
+  gt::fmt_markdown(columns = everything()) %>%
   gt::cols_width(
     label ~ gt::px(500)
   ) %>%
   gt::tab_options(
     table.width = gt::pct(100)
   )
-
-final_table_ct_city_poisson
 ```
