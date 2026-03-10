@@ -966,6 +966,7 @@ final_table_ct_city_sex %>%
 
 analysis_data_ct_age <- df %>%
   mutate(
+    faixaetaria = haven::as_factor(faixaetaria),
     faixaetaria2 = case_when(
       faixaetaria == "50-59" ~ "50-59",
       faixaetaria %in% c("60-69", "70-79", "≥80") ~ "≥60"
@@ -1091,6 +1092,7 @@ final_table_ct_age %>%
 
 analysis_data_ct_city_age <- df %>%
   mutate(
+    faixaetaria = haven::as_factor(faixaetaria),
     faixaetaria2 = case_when(
       faixaetaria == "50-59" ~ "50-59",
       faixaetaria %in% c("60-69", "70-79", "≥80") ~ "≥60"
@@ -1674,6 +1676,7 @@ final_table_ct_city_poisson_sex %>%
 
 analysis_data_ct_poisson_age <- df %>%
   mutate(
+    faixaetaria = haven::as_factor(faixaetaria),
     faixaetaria2 = case_when(
       faixaetaria == "50-59" ~ "50-59",
       faixaetaria %in% c("60-69","70-79","≥80") ~ "≥60"
@@ -1792,6 +1795,7 @@ final_table_ct_poisson_age %>%
 
 analysis_data_ct_city_poisson_age <- df %>%
   mutate(
+    faixaetaria = haven::as_factor(faixaetaria),
     faixaetaria2 = case_when(
       faixaetaria == "50-59" ~ "50-59",
       faixaetaria %in% c("60-69","70-79","≥80") ~ "≥60"
