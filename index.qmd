@@ -1881,3 +1881,340 @@ final_table_ct_city_poisson_age %>%
     source_note="Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Multilevel Poisson models stratified by age group with random intercepts for census tracts nested within cities, adjusted for sex, race/color, and education."
   )
 ```
+
+
+## Falls in the last 12 months
+
+```{r}
+#| label: Falls in the last 12 months stratified by sex
+#| code-summary: Falls in the last 12 months stratified by sex
+#| warning: false
+#| message: false
+
+df <- df %>%
+  mutate(
+    quedas = case_when(
+      n18 == 0 ~ 0,
+      n18 == 1 ~ 1,
+      TRUE ~ NA_real_
+    )
+  )
+
+options(survey.lonely.psu = "adjust")
+
+df %>% 
+  filter(zona == 1, !is.na(identificador)) %>% 
+  mutate(
+    sexo = factor(sexo, levels = c(0, 1), labels = c("Female", "Male")),
+    quedas = factor(quedas, levels = c(0, 1), labels = c("No", "Yes"))
+  ) %>% 
+  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado, nest = TRUE) %>%
+  tbl_svysummary(
+    by = sexo,
+    include = c(quedas),
+    type = list(quedas ~ "categorical"),
+    label = list(
+      quedas ~ "Falls in the last 12 months"
+    ),
+    statistic = list(
+      all_categorical() ~ "{p}"
+    ),
+    digits = list(
+      all_categorical() ~ 1
+    ),
+    missing = "no"
+  ) %>%
+  add_overall(last = FALSE) %>%
+  add_p(
+    pvalue_fun = ~ style_pvalue(.x, digits = 3)
+  ) %>% 
+  add_ci(
+    style_fun = list(
+      all_categorical() ~ function(x) sprintf("%.1f", x * 100)
+    )
+  ) %>% 
+  modify_fmt_fun(
+    update = list(
+      all_stat_cols() ~ function(x) gsub("%", "", x),
+      starts_with("ci_stat") ~ function(x) {
+        x <- gsub("%", "", x)
+        x <- gsub(", ", " - ", x)
+        ifelse(x == "" | is.na(x), "", x)
+      }
+    )
+  ) %>%
+  modify_header(
+    label = "**Characteristic**",
+    all_stat_cols() ~ "**%**",
+    starts_with("ci_stat") ~ "**95% CI**",
+    p.value = "**p-value**"
+  ) %>% 
+  modify_spanning_header(
+    c(stat_0, ci_stat_0) ~ "**Total<br>n=2,794**",
+    c(stat_1, ci_stat_1) ~ "**Female<br>n=1,651**",
+    c(stat_2, ci_stat_2) ~ "**Male<br>n=1,143**"
+  ) %>% 
+  modify_footnote(everything() ~ NA) %>% 
+  as_gt() %>%
+  gt::tab_source_note(
+    source_note = "Note: Missing values for Falls in the last 12 months (n=36). P-values were calculated using the Rao–Scott adjusted chi-square test."
+  )
+```
+
+```{r}
+#| label: Multilevel logistic models for neighborhood indicators and falls
+#| code-summary: Multilevel logistic models for neighborhood indicators and falls (census tract random intercept)
+#| warning: false
+#| message: false
+
+analysis_data_ct <- df %>%
+  filter(zona == 1, !is.na(identificador)) %>%
+  mutate(
+    census_tract = factor(setor),
+    normalized_weight = peso_calibrado / mean(peso_calibrado, na.rm = TRUE),
+    quedas = as.numeric(as.character(quedas)) 
+  )
+
+exposure_labels <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+
+outcome_labels <- c(
+  quedas = "Falls in the last 12 months"
+)
+
+exposure_vars <- names(exposure_labels)
+outcome_vars <- names(outcome_labels)
+adjustments <- c("sexo", "faixaetaria", "cor_raca", "escolaridade2")
+
+run_model_row_ct <- function(outcome_var, exp_var) {
+
+  model_formula <- as.formula(
+    paste(outcome_var, "~", exp_var, "+",
+          paste(adjustments, collapse = " + "),
+          "+ (1 | census_tract)")
+  )
+
+  model_fit_ct <- glmmTMB(
+    formula = model_formula,
+    data = analysis_data_ct,
+    family = binomial(link = "logit"),
+    weights = normalized_weight
+  )
+
+  lbl_list <- list()
+  lbl_list[[exp_var]] <- exposure_labels[[exp_var]]
+
+  tbl_regression(
+    model_fit_ct,
+    include = all_of(exp_var),
+    exponentiate = TRUE,
+    label = lbl_list,
+    estimate_fun = function(x) style_number(x, digits = 1),
+    pvalue_fun = function(x) style_pvalue(x, digits = 3),
+    show_single_row = all_of(exp_var)
+  ) %>%
+    modify_table_body(
+      ~ .x %>%
+        mutate(ci = gsub(",", " -", ci)) %>%
+        select(-conf.low, -conf.high)
+    ) %>%
+    modify_header(
+      label = "**Neighborhood indicators**",
+      estimate = "**OR**",
+      ci = "**95% CI**"
+    )
+}
+
+table_list_ct <- map(outcome_vars, function(out_v) {
+  sub_tables <- map(exposure_vars, ~run_model_row_ct(out_v, .x))
+  tbl_stack(sub_tables)
+})
+
+final_table_ct <- tbl_stack(
+  tbls = table_list_ct,
+  group_header = outcome_labels[outcome_vars]
+)
+
+final_table_ct %>%
+  as_gt() %>%
+  gt::cols_width(
+    label ~ gt::px(500)
+  ) %>%
+  gt::tab_options(
+    table.width = gt::pct(100) 
+  ) %>%
+  gt::tab_source_note(
+    source_note = "Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model with a random intercept for census tract, adjusted for sex, age group, race/color, and education."
+  )
+```
+
+
+## Self-rated health
+
+```{r}
+#| label: Self-rated health stratified by sex
+#| code-summary: Self-rated health stratified by sex
+#| warning: false
+#| message: false
+
+options(survey.lonely.psu = "adjust")
+
+df %>% 
+  filter(zona == 1, !is.na(identificador)) %>% 
+  mutate(
+    sexo = factor(sexo, levels = c(0, 1), labels = c("Female", "Male")),
+    aas = factor(aas, 
+                 levels = c(0, 1), 
+                 labels = c("Very poor/Poor", "Excellent/Very good/Good/Fair"))
+  ) %>% 
+  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado, nest = TRUE) %>%
+  tbl_svysummary(
+    by = sexo,
+    include = c(aas),
+    type = list(aas ~ "categorical"),
+    label = list(
+      aas ~ "Self-rated health"
+    ),
+    statistic = list(
+      all_categorical() ~ "{p}"
+    ),
+    digits = list(
+      all_categorical() ~ 1
+    ),
+    missing = "no"
+  ) %>%
+  add_overall(last = FALSE) %>%
+  add_p(
+    pvalue_fun = ~ style_pvalue(.x, digits = 3)
+  ) %>% 
+  add_ci(
+    style_fun = list(
+      all_categorical() ~ function(x) sprintf("%.1f", x * 100)
+    )
+  ) %>% 
+  modify_fmt_fun(
+    update = list(
+      all_stat_cols() ~ function(x) gsub("%", "", x),
+      starts_with("ci_stat") ~ function(x) {
+        x <- gsub("%", "", x)
+        x <- gsub(", ", " - ", x)
+        ifelse(x == "" | is.na(x), "", x)
+      }
+    )
+  ) %>%
+  modify_header(
+    label = "**Characteristic**",
+    all_stat_cols() ~ "**%**",
+    starts_with("ci_stat") ~ "**95% CI**",
+    p.value = "**p-value**"
+  ) %>% 
+  modify_spanning_header(
+    c(stat_0, ci_stat_0) ~ "**Total<br>n=2,794**",
+    c(stat_1, ci_stat_1) ~ "**Female<br>n=1,651**",
+    c(stat_2, ci_stat_2) ~ "**Male<br>n=1,143**"
+  ) %>% 
+  modify_footnote(everything() ~ NA) %>% 
+  as_gt() %>%
+  gt::tab_source_note(
+    source_note = "Note: Missing values for Self-rated health (n=28). P-values were calculated using the Rao–Scott adjusted chi-square test."
+  )
+```
+
+```{r}
+#| label: Multilevel logistic models for neighborhood indicators and self-rated health
+#| code-summary: Multilevel logistic models for neighborhood indicators and self-rated health (census tract random intercept)
+#| warning: false
+#| message: false
+
+analysis_data_ct <- df %>%
+  filter(zona == 1, !is.na(identificador)) %>%
+  mutate(
+    census_tract = factor(setor),
+    normalized_weight = peso_calibrado / mean(peso_calibrado, na.rm = TRUE),
+    aas = as.numeric(as.character(aas))
+  )
+
+exposure_labels <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+
+outcome_labels <- c(
+  aas = "Self-rated health (Excellent to Fair vs. Poor/Very Poor)"
+)
+
+exposure_vars <- names(exposure_labels)
+outcome_vars <- names(outcome_labels)
+adjustments <- c("sexo", "faixaetaria", "cor_raca", "escolaridade2")
+
+run_model_row_ct <- function(outcome_var, exp_var) {
+
+  model_formula <- as.formula(
+    paste(outcome_var, "~", exp_var, "+",
+          paste(adjustments, collapse = " + "),
+          "+ (1 | census_tract)")
+  )
+
+  model_fit_ct <- glmmTMB(
+    formula = model_formula,
+    data = analysis_data_ct,
+    family = binomial(link = "logit"),
+    weights = normalized_weight
+  )
+
+  lbl_list <- list()
+  lbl_list[[exp_var]] <- exposure_labels[[exp_var]]
+
+  tbl_regression(
+    model_fit_ct,
+    include = all_of(exp_var),
+    exponentiate = TRUE,
+    label = lbl_list,
+    estimate_fun = function(x) style_number(x, digits = 1),
+    pvalue_fun = function(x) style_pvalue(x, digits = 3),
+    show_single_row = all_of(exp_var)
+  ) %>%
+    modify_table_body(
+      ~ .x %>%
+        mutate(ci = gsub(",", " -", ci)) %>%
+        select(-conf.low, -conf.high)
+    ) %>%
+    modify_header(
+      label = "**Neighborhood indicators**",
+      estimate = "**OR**",
+      ci = "**95% CI**"
+    )
+}
+
+table_list_ct <- map(outcome_vars, function(out_v) {
+  sub_tables <- map(exposure_vars, ~run_model_row_ct(out_v, .x))
+  tbl_stack(sub_tables)
+})
+
+final_table_ct <- tbl_stack(
+  tbls = table_list_ct,
+  group_header = outcome_labels[outcome_vars]
+)
+
+final_table_ct %>%
+  as_gt() %>%
+  gt::cols_width(
+    label ~ gt::px(500)
+  ) %>%
+  gt::tab_options(
+    table.width = gt::pct(100) 
+  ) %>%
+  gt::tab_source_note(
+    source_note = "Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model with a random intercept for census tract, adjusted for sex, age group, race/color, and education."
+  )
+```
