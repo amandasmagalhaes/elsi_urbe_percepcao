@@ -20267,6 +20267,654 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<div class="cell">
+<details class="code-fold">
+<summary>Multilevel poisson models for neighborhood indicators and self-rated health stratified by sex (census tract random intercept)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>analysis_data_ct_poisson_sex <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(zona <span class="sc">==</span> <span class="dv">1</span>, <span class="sc">!</span><span class="fu">is.na</span>(identificador)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">census_tract =</span> <span class="fu">factor</span>(setor),</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">normalized_weight =</span> peso_calibrado <span class="sc">/</span> <span class="fu">mean</span>(peso_calibrado, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">aas =</span> <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(aas))</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>exposure_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">dom_urbana1_escala =</span> <span class="st">"Pathway accessibility"</span>,</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">dom_urbana2_escala =</span> <span class="st">"Surface and continuity"</span>,</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">dom_transito1_escala =</span> <span class="st">"Markings and controls"</span>,</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">dom_transito2_escala =</span> <span class="st">"Speed and bus lane"</span>,</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">dom_desordem1_escala =</span> <span class="st">"Absence of infrastructure and vegetation"</span>,</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">dom_desordem2_escala =</span> <span class="st">"Absence of building and green spaces"</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>outcome_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">aas =</span> <span class="st">"Self-rated health"</span></span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>exposure_vars <span class="ot">&lt;-</span> <span class="fu">names</span>(exposure_labels)</span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>outcome_vars  <span class="ot">&lt;-</span> <span class="fu">names</span>(outcome_labels)</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>adjustments <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"faixaetaria"</span>, <span class="st">"cor_raca"</span>, <span class="st">"escolaridade2"</span>)</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>run_model_row_ct_poisson_sex <span class="ot">&lt;-</span> <span class="cf">function</span>(outcome_var, exp_var, sex_value) {</span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>  data_strata <span class="ot">&lt;-</span> analysis_data_ct_poisson_sex <span class="sc">%&gt;%</span></span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(sexo <span class="sc">==</span> sex_value)</span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>  model_formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(</span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(outcome_var, <span class="st">"~"</span>, exp_var, <span class="st">"+"</span>,</span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>          <span class="fu">paste</span>(adjustments, <span class="at">collapse =</span> <span class="st">" + "</span>),</span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a>          <span class="st">"+ (1 | census_tract)"</span>)</span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>  model_fit_ct_poisson_sex <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
+<span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">formula =</span> model_formula,</span>
+<span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> data_strata,</span>
+<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="fu">poisson</span>(<span class="at">link =</span> <span class="st">"log"</span>),</span>
+<span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">weights =</span> normalized_weight</span>
+<span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-45"><a href="#cb28-45" aria-hidden="true" tabindex="-1"></a>  lbl_list <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a>  lbl_list[[exp_var]] <span class="ot">&lt;-</span> exposure_labels[[exp_var]]</span>
+<span id="cb28-47"><a href="#cb28-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-48"><a href="#cb28-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_regression</span>(</span>
+<span id="cb28-49"><a href="#cb28-49" aria-hidden="true" tabindex="-1"></a>    model_fit_ct_poisson_sex,</span>
+<span id="cb28-50"><a href="#cb28-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">include =</span> <span class="fu">all_of</span>(exp_var),</span>
+<span id="cb28-51"><a href="#cb28-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb28-52"><a href="#cb28-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> lbl_list,</span>
+<span id="cb28-53"><a href="#cb28-53" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimate_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_number</span>(x, <span class="at">digits =</span> <span class="dv">1</span>),</span>
+<span id="cb28-54"><a href="#cb28-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">pvalue_fun =</span> <span class="cf">function</span>(x) <span class="fu">style_pvalue</span>(x, <span class="at">digits =</span> <span class="dv">3</span>),</span>
+<span id="cb28-55"><a href="#cb28-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_single_row =</span> <span class="fu">all_of</span>(exp_var)</span>
+<span id="cb28-56"><a href="#cb28-56" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb28-57"><a href="#cb28-57" aria-hidden="true" tabindex="-1"></a>    <span class="fu">modify_table_body</span>(</span>
+<span id="cb28-58"><a href="#cb28-58" aria-hidden="true" tabindex="-1"></a>      <span class="sc">~</span> .x <span class="sc">%&gt;%</span></span>
+<span id="cb28-59"><a href="#cb28-59" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">ci =</span> <span class="fu">gsub</span>(<span class="st">","</span>, <span class="st">" -"</span>, ci)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-60"><a href="#cb28-60" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(<span class="sc">-</span><span class="fu">any_of</span>(<span class="fu">c</span>(<span class="st">"group"</span>,<span class="st">"conf.low"</span>,<span class="st">"conf.high"</span>)))</span>
+<span id="cb28-61"><a href="#cb28-61" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb28-62"><a href="#cb28-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">modify_header</span>(</span>
+<span id="cb28-63"><a href="#cb28-63" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> <span class="st">"**Neighborhood indicators**"</span>,</span>
+<span id="cb28-64"><a href="#cb28-64" aria-hidden="true" tabindex="-1"></a>      <span class="at">estimate =</span> <span class="st">"**PR**"</span>,</span>
+<span id="cb28-65"><a href="#cb28-65" aria-hidden="true" tabindex="-1"></a>      <span class="at">ci =</span> <span class="st">"**95% CI**"</span></span>
+<span id="cb28-66"><a href="#cb28-66" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb28-67"><a href="#cb28-67" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-68"><a href="#cb28-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-69"><a href="#cb28-69" aria-hidden="true" tabindex="-1"></a>sex_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb28-70"><a href="#cb28-70" aria-hidden="true" tabindex="-1"></a>sex_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Female"</span>, <span class="st">"Male"</span>)</span>
+<span id="cb28-71"><a href="#cb28-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-72"><a href="#cb28-72" aria-hidden="true" tabindex="-1"></a>table_list_outcomes <span class="ot">&lt;-</span> <span class="fu">map</span>(outcome_vars, <span class="cf">function</span>(out_v) {</span>
+<span id="cb28-73"><a href="#cb28-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-74"><a href="#cb28-74" aria-hidden="true" tabindex="-1"></a>  female_tables <span class="ot">&lt;-</span> <span class="fu">map</span>(exposure_vars, <span class="sc">~</span><span class="fu">run_model_row_ct_poisson_sex</span>(out_v, .x, <span class="dv">0</span>))</span>
+<span id="cb28-75"><a href="#cb28-75" aria-hidden="true" tabindex="-1"></a>  male_tables   <span class="ot">&lt;-</span> <span class="fu">map</span>(exposure_vars, <span class="sc">~</span><span class="fu">run_model_row_ct_poisson_sex</span>(out_v, .x, <span class="dv">1</span>))</span>
+<span id="cb28-76"><a href="#cb28-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-77"><a href="#cb28-77" aria-hidden="true" tabindex="-1"></a>  female_stack <span class="ot">&lt;-</span> <span class="fu">tbl_stack</span>(female_tables)</span>
+<span id="cb28-78"><a href="#cb28-78" aria-hidden="true" tabindex="-1"></a>  male_stack   <span class="ot">&lt;-</span> <span class="fu">tbl_stack</span>(male_tables)</span>
+<span id="cb28-79"><a href="#cb28-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-80"><a href="#cb28-80" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_merge</span>(</span>
+<span id="cb28-81"><a href="#cb28-81" aria-hidden="true" tabindex="-1"></a>    <span class="at">tbls =</span> <span class="fu">list</span>(female_stack, male_stack),</span>
+<span id="cb28-82"><a href="#cb28-82" aria-hidden="true" tabindex="-1"></a>    <span class="at">tab_spanner =</span> <span class="fu">paste0</span>(<span class="st">"**"</span>, sex_labels, <span class="st">"**"</span>)</span>
+<span id="cb28-83"><a href="#cb28-83" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb28-84"><a href="#cb28-84" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb28-85"><a href="#cb28-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-86"><a href="#cb28-86" aria-hidden="true" tabindex="-1"></a>final_table_ct_poisson_sex <span class="ot">&lt;-</span> <span class="fu">tbl_stack</span>(</span>
+<span id="cb28-87"><a href="#cb28-87" aria-hidden="true" tabindex="-1"></a>  <span class="at">tbls =</span> table_list_outcomes,</span>
+<span id="cb28-88"><a href="#cb28-88" aria-hidden="true" tabindex="-1"></a>  <span class="at">group_header =</span> outcome_labels[outcome_vars]</span>
+<span id="cb28-89"><a href="#cb28-89" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb28-90"><a href="#cb28-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-91"><a href="#cb28-91" aria-hidden="true" tabindex="-1"></a>final_table_ct_poisson_sex <span class="sc">%&gt;%</span></span>
+<span id="cb28-92"><a href="#cb28-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_gt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb28-93"><a href="#cb28-93" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_hide</span>(</span>
+<span id="cb28-94"><a href="#cb28-94" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">matches</span>(<span class="st">"^group"</span>)</span>
+<span id="cb28-95"><a href="#cb28-95" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb28-96"><a href="#cb28-96" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_width</span>(</span>
+<span id="cb28-97"><a href="#cb28-97" aria-hidden="true" tabindex="-1"></a>    label <span class="sc">~</span> gt<span class="sc">::</span><span class="fu">px</span>(<span class="dv">500</span>)</span>
+<span id="cb28-98"><a href="#cb28-98" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb28-99"><a href="#cb28-99" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_options</span>(</span>
+<span id="cb28-100"><a href="#cb28-100" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> gt<span class="sc">::</span><span class="fu">pct</span>(<span class="dv">100</span>)</span>
+<span id="cb28-101"><a href="#cb28-101" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb28-102"><a href="#cb28-102" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_source_note</span>(</span>
+<span id="cb28-103"><a href="#cb28-103" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="st">"Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Multilevel Poisson models stratified by sex with a random intercept for census tract, adjusted for age group, race/color, and education."</span></span>
+<span id="cb28-104"><a href="#cb28-104" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div id="ctpwcdhvxz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#ctpwcdhvxz table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#ctpwcdhvxz thead, #ctpwcdhvxz tbody, #ctpwcdhvxz tfoot, #ctpwcdhvxz tr, #ctpwcdhvxz td, #ctpwcdhvxz th {
+  border-style: none;
+}
+
+#ctpwcdhvxz p {
+  margin: 0;
+  padding: 0;
+}
+
+#ctpwcdhvxz .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: 100%;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#ctpwcdhvxz .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#ctpwcdhvxz .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#ctpwcdhvxz .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#ctpwcdhvxz .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ctpwcdhvxz .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ctpwcdhvxz .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#ctpwcdhvxz .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#ctpwcdhvxz .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#ctpwcdhvxz .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#ctpwcdhvxz .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#ctpwcdhvxz .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#ctpwcdhvxz .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#ctpwcdhvxz .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#ctpwcdhvxz .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#ctpwcdhvxz .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#ctpwcdhvxz .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#ctpwcdhvxz .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#ctpwcdhvxz .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ctpwcdhvxz .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#ctpwcdhvxz .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#ctpwcdhvxz .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#ctpwcdhvxz .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ctpwcdhvxz .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#ctpwcdhvxz .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#ctpwcdhvxz .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ctpwcdhvxz .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ctpwcdhvxz .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#ctpwcdhvxz .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ctpwcdhvxz .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#ctpwcdhvxz .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#ctpwcdhvxz .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ctpwcdhvxz .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ctpwcdhvxz .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#ctpwcdhvxz .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#ctpwcdhvxz .gt_left {
+  text-align: left;
+}
+
+#ctpwcdhvxz .gt_center {
+  text-align: center;
+}
+
+#ctpwcdhvxz .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#ctpwcdhvxz .gt_font_normal {
+  font-weight: normal;
+}
+
+#ctpwcdhvxz .gt_font_bold {
+  font-weight: bold;
+}
+
+#ctpwcdhvxz .gt_font_italic {
+  font-style: italic;
+}
+
+#ctpwcdhvxz .gt_super {
+  font-size: 65%;
+}
+
+#ctpwcdhvxz .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#ctpwcdhvxz .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#ctpwcdhvxz .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#ctpwcdhvxz .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#ctpwcdhvxz .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#ctpwcdhvxz .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#ctpwcdhvxz .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#ctpwcdhvxz .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#ctpwcdhvxz div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings gt_spanner_row header">
+<th rowspan="2" id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Neighborhood indicators</strong></th>
+<th colspan="3" id="level 1; groupname_col_1" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><div class="gt_column_spanner">
+<strong>Female</strong>
+</div></th>
+<th colspan="3" id="level 1; groupname_col_2" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><div class="gt_column_spanner">
+<strong>Male</strong>
+</div></th>
+</tr>
+<tr class="gt_col_headings even">
+<th id="estimate_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>PR</strong></th>
+<th id="ci_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
+<th id="p.value_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+<th id="estimate_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>PR</strong></th>
+<th id="ci_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
+<th id="p.value_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="gt_group_heading_row odd">
+<th colspan="7" id="Self-rated health" class="gt_group_heading" data-quarto-table-cell-role="th" scope="colgroup">Self-rated health</th>
+</tr>
+<tr class="gt_row_group_first even">
+<td class="gt_row gt_left" headers="Self-rated health  label">Pathway accessibility</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">1.0 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.229</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">1.0 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.085</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Self-rated health  label">Surface and continuity</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">1.0 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.479</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">1.0 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.345</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Self-rated health  label">Markings and controls</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">0.9 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.783</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">1.0 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.436</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Self-rated health  label">Speed and bus lane</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">0.9 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.814</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">0.9 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.867</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="Self-rated health  label">Absence of infrastructure and vegetation</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">0.9 - 1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.596</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">0.9 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.790</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Self-rated health  label">Absence of building and green spaces</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">1.0 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.681</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">0.9 - 1.0</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.538</td>
+</tr>
+</tbody><tfoot>
+<tr class="gt_sourcenotes odd">
+<td colspan="7" class="gt_sourcenote">Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Multilevel Poisson models stratified by sex with a random intercept for census tract, adjusted for age group, race/color, and education.</td>
+</tr>
+</tfoot>
+
+</table>
+
+</div>
+</div>
+</div>
 </section>
 </section>
 
