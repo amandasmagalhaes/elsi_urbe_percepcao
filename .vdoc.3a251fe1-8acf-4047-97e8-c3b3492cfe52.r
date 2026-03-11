@@ -1,23 +1,23 @@
----
-title: "Neighborhood Characteristics and Residents’ Perceptions: The ELSI-Urbe Project"
-author: "Amanda Silva Magalhães; Amanda Cristina de Souza Andrade; Bruno de Souza Moreira"
-date: today
-format:
-  html:
-    theme: cosmo
-    toc: true
-    toc-location: left
-    number-sections: true
-    code-fold: true
-    page-layout: full
-execute:
-  freeze: auto
-  cache: true
----
-
-
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: Packages
 #| code-summary: Packages
 #| warning: false
@@ -27,73 +27,73 @@ rm(list = ls())
 
 library(pacman)
 p_load(tidyverse, haven, here, survey, srvyr, gtsummary, kableExtra, glmmTMB, broom.mixed)
-```
-
-```{r}
+#
+#
+#
 #| label: Database
 #| code-summary: Database
 
 df <- read_dta(here("elsi_brasil_auditoria_virtual.dta"))
-```
-
-
-
-# Introduction
-
-## Aim
-
-This study aimed to investigate the association between neighborhood physical characteristics assessed through virtual audits and older adults’ perceptions in Brazil.
-
-# Methods
-
-## ELSI-Urbe
-
-The present research is part of the project “The Influence of the Physical and Social Environment on the Health of Older Brazilian Adults: A Longitudinal Multi-Method Population-Based Study” (ELSI-Urbe), initiated in 2021 by the Observatory for Urban Health in Belo Horizonte (OSUBH) at the Federal University of Minas Gerais (UFMG), in partnership with the Center for Studies in Public Health and Aging at UFMG and the René Rachou Institute – Fiocruz Minas of the Oswaldo Cruz Foundation.
-
-The ELSI-Urbe project investigates how physical and social neighborhood characteristics influence the health and well-being of older adults over time. It is part of the broader Brazilian Longitudinal Study of Aging (ELSI-Brazil) and uses data from its participants to understand the long-term effects of urban environments on aging ([Coelho et al., 2025](https://doi.org/10.1007/s11524-025-00998-5)). The project integrates individual-level data from ELSI-Brazil with ultra-local contextual information from secondary sources and virtual audits, aggregated across different geographic units. Only participants living in urban areas were included.
-
-## ELSI-Brazil
-
-The ELSI-Brazil is a nationally representative, population-based cohort study of community-dwelling adults aged 50 years or older, living in 70 municipalities across the five Brazilian regions. The sampling process was conducted in stages, combining the stratification of primary sampling units (municipalities), census tracts, and households. The first wave was conducted in 2015–2016, the second in 2019–2021, and the third in 2023–2024. All residents aged 50 years or older in selected households were eligible to participate in interviews using a structured questionnaire and physical measurements. Further details about ELSI-Brazil are available in previous publications ([Lima-Costa et al., 2018](https://doi.org/10.1093/aje/kwx387); [Lima-Costa et al., 2023](https://doi.org/10.1093/ije/dyac132)) and on the [ELSI-Brazil website](https://elsi.cpqrr.fiocruz.br/en/home-english/).
-
-## Virtual audit
-
-The ELSI-Urbe Virtual Audit subproject was conducted using a systematic observation method between April and October 2024, based on available Google Street View images. The audit was performed at the street-segment level, considering both sides of the street, and later aggregated into census tracts, which were defined as neighborhoods. The sampling process was carried out in stages, sequentially selecting municipalities (the most populous municipality participating in ELSI-Brazil from each federative unit, with 20 available), census tracts (with ELSI-Brazil interviews), and random street segments. Data collection was conducted by a single trained rater using a multidimensional instrument and a field manual.
-
-## Study sample
-
-The analytical sample followed a two-level multilevel structure, with individuals from the second wave of ELSI-Brazil nested within their residential census tracts. The eligible population comprised participants residing in urban areas whose census tracts had available virtual audit data (n = 2,794 individuals nested within 218 census tracts).
-
-## Outcomes
-
-To be defined.
-
-## Exposures
-
-Exposure variables consisted of six indicators derived from the virtual audit data. Composite indicators were created based on urban infrastructure, traffic, and physical disorder, resulting in two components for each of the three domains assessed, as defined in a previous study.
-
-For the urban infrastructure domain, the first subdomain, pathway accessibility, included the items “street condition,” “sidewalk extends along the entire segment,” and “unobstructed sidewalk.” The second subdomain, surface and continuity, consisted of the items “street material,” “presence of sidewalks,” and “sidewalks even along the entire segment” (total variance: 59.7%; Cronbach’s alpha: 0.672).
-
-In the traffic domain, the first subdomain, markings and controls, comprised the items “lane markings,” “median lane,” “traffic control devices,” “crosswalk,” and “public transport stop.” The second subdomain, speed and bus lane, included the items “speed control devices” and “dedicated bus lane” (total variance: 48.8%; Cronbach’s alpha: 0.675).
-
-In the physical disorder domain, the first subdomain, absence of infrastructure and vegetation, was represented by the items “condition of electrical wires,” “absence of trees,” and “absence of gardens or potted plants.” The second subdomain, absence of buildings and green spaces, consisted of the items “buildings in poor condition” and “absence of parks or green spaces” (total variance: 61.1%; Cronbach’s alpha: 0.617).
-
-## Adjustment variables
-
-Adjustment variables included sex (female and male), age group (50–59, 60–69, 70–79, and ≥80 years), race/color (white and non-white), and education (<4, 4–7, and ≥8 years of schooling).
-
-## Statistical analysis
-
-Descriptive statistics were calculated using frequency distributions (%), means, and standard deviations (SD), accounting for the complex sampling design and individual weights using the survey package. Associations between exposures and outcomes were examined using prevalence ratios (PR) and 95% confidence intervals (CI), estimated through multilevel Poisson regression models with a log link and a random intercept for census tract, adjusted for sociodemographic variables. Normalized individual sampling weights were incorporated into the regression models, which were fitted using the glmmTMB package. The significance level was set at 5%. All analyses were conducted using R software (R version 4.5.0; R Development Core Team).
-
-
-
-# Results
-
-
-## Descriptive analyses
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: Distribution of individuals by area of residence
 #| code-summary: Distribution of individuals by area of residence
 
@@ -113,9 +113,9 @@ df %>%
     stat_0 = "**Total**<br>n = {N}"
   ) %>%
   modify_footnote(everything() ~ NA)
-```
-
-```{r}
+#
+#
+#
 #| label: Distribution of cities and virtual urban audit status
 #| code-summary: Distribution of cities and virtual urban audit status
 
@@ -139,9 +139,9 @@ df %>%
     stat_0 = "**Total cities**<br>n = {N}"
   ) %>%
   modify_footnote(everything() ~ NA)
-```
-
-```{r}
+#
+#
+#
 #| label: Cities and virtual urban audit status
 #| code-summary: Cities and virtual urban audit status
 
@@ -157,9 +157,9 @@ df %>%
   knitr::kable(
     col.names = c("#", "City", "Virtual audit")
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Distribution of census tracts and virtual audit status
 #| code-summary: Distribution of census tracts and virtual audit status
 
@@ -186,9 +186,9 @@ df %>%
     stat_0 = "**Total census tracts**<br>n = {N}"
   ) %>%
   modify_footnote(everything() ~ NA)
-```
-
-```{r}
+#
+#
+#
 #| label: Distribution of individuals in cities without and with virtual urban audit
 #| code-summary: Distribution of individuals in cities without and with virtual urban audit
 
@@ -211,9 +211,9 @@ df %>%
     stat_0 = "**Total**<br>n = {N}"
   ) %>%
   modify_footnote(everything() ~ NA)
-```
-
-```{r}
+#
+#
+#
 #| label: Distribution of individuals in census tracts and virtual urban audit status
 #| code-summary: Distribution of individuals in census tracts and virtual urban audit status
 
@@ -241,12 +241,12 @@ df %>%
     stat_0 = "**Total**<br>n = {N}"
   ) %>%
   modify_footnote(everything() ~ NA)
-```
-
-
-## Sample characteristics
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Unweighted sample characteristics in cities without and with virtual urban audit
 #| code-summary: Unweighted sample characteristics in cities without and with virtual urban audit
 
@@ -303,9 +303,9 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Virtual audit**"
   ) %>%
   modify_footnote(everything() ~ NA)
-```
-
-```{r}
+#
+#
+#
 #| label: Sample characteristics in cities without and with virtual urban audit
 #| code-summary: Sample characteristics in cities without and with virtual urban audit
 
@@ -366,12 +366,12 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Virtual audit**"
   ) %>%
   modify_footnote(everything() ~ NA)
-```
-
-
-## Individual characteristics and neighborhood perceptions
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Individual characteristics and neighborhood perceptions stratified by sex
 #| code-summary: Individual characteristics and neighborhood perceptions stratified by sex
 #| warning: false
@@ -511,12 +511,12 @@ df %>%
   gt::tab_source_note(
     source_note = "Note: Missing values for Race/Color (n=26); Education (n=57); Number of chronic diseases (n=21); Self-rated health (n=28); Household income per capita (n=178); Length of residence (n=96); Fear of falling due to sidewalk defects (n=34); Difficulty boarding public transport (n=45); Difficulty crossing the street (n=31); Neighborhood is a good place to live (n=26); Good neighborhood for children and adolescents (n=50); Neighborhood pleasant for walking, running, or cycling (n=70); Neighborhood safety (n=52); Victim of theft, robbery, or home invasion in the last 12 months (n=29). P-values were calculated using the Rao–Scott adjusted chi-square test for categorical variables and the survey-weighted Wald test for continuous variables."
   )
-```
-
-
-## Multilevel logistic models
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Multilevel logistic models for neighborhood indicators and resident perceptions (census tract random intercept)
 #| code-summary: Multilevel logistic models for neighborhood indicators and resident perceptions (census tract random intercept)
 #| warning: false
@@ -613,9 +613,9 @@ final_table_ct %>%
   gt::tab_source_note(
     source_note = "Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model with a random intercept for census tract, adjusted for sex, age group, race/color, and education."
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Multilevel logistic models for neighborhood indicators and resident perceptions (census tract nested within city)
 #| code-summary: Multilevel logistic models for neighborhood indicators and resident perceptions (census tract nested within city)
 #| warning: false
@@ -713,12 +713,12 @@ final_table_ct_city %>%
   gt::tab_source_note(
     source_note = "Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model with random intercepts for census tracts nested within cities, adjusted for sex, age group, race/color, and education."
   )
-```
-
-
-## Multilevel logistic models by sex
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Multilevel logistic models for neighborhood indicators and resident perceptions stratified by sex (census tract random intercept)
 #| code-summary: Multilevel logistic models for neighborhood indicators and resident perceptions stratified by sex (census tract random intercept)
 #| warning: false
@@ -834,9 +834,9 @@ final_table_ct_sex %>%
   gt::tab_source_note(
     source_note = "Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model stratified by sex, with a random intercept for census tract, adjusted for age group, race/color, and education."
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Multilevel logistic models for neighborhood indicators and resident perceptions stratified by sex (census tract nested within city)
 #| code-summary: Multilevel logistic models for neighborhood indicators and resident perceptions stratified by sex (census tract nested within city)
 #| warning: false
@@ -953,12 +953,12 @@ final_table_ct_city_sex %>%
   gt::tab_source_note(
     source_note = "Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model stratified by sex, with a random intercept for census tract nested within cities, adjusted for age group, race/color, and education."
   )
-```
-
-
-## Multilevel logistic models by age
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Multilevel logistic models for neighborhood indicators and resident perceptions stratified by age group (census tract random intercept)
 #| code-summary: Multilevel logistic models for neighborhood indicators and resident perceptions stratified by age group (census tract random intercept)
 #| warning: false
@@ -1082,9 +1082,9 @@ final_table_ct_age %>%
   gt::tab_source_note(
     source_note = "Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model stratified by age group, with a random intercept for census tract, adjusted for sex, race/color, and education."
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Multilevel logistic models for neighborhood indicators and resident perceptions stratified by age group (census tract nested within city)
 #| code-summary: Multilevel logistic models for neighborhood indicators and resident perceptions stratified by age group (census tract nested within city)
 #| warning: false
@@ -1209,12 +1209,12 @@ final_table_ct_city_age %>%
   gt::tab_source_note(
     source_note = "Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model stratified by age group, with a random intercept for census tract nested within cities, adjusted for sex, race/color, and education."
   )
-```
-
-
-## Multilevel poisson models
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Multilevel poisson models for neighborhood indicators and resident perceptions (census tract random intercept)
 #| code-summary: Multilevel poisson models for neighborhood indicators and resident perceptions (census tract random intercept)
 #| warning: false
@@ -1317,9 +1317,9 @@ final_table_ct_poisson %>%
   gt::tab_source_note(
     source_note = "Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model with a random intercept for census tract, adjusted for sex, age group, race/color, and education."
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Multilevel poisson models for neighborhood indicators and resident perceptions (census tract nested within city)
 #| code-summary: Multilevel poisson models for neighborhood indicators and resident perceptions (census tract nested within city)
 #| warning: false
@@ -1423,12 +1423,12 @@ final_table_ct_city_poisson %>%
   gt::tab_source_note(
     source_note = "Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model with random intercepts for census tracts nested within cities, adjusted for sex, age group, race/color, and education."
   )
-```
-
-
-## Multilevel poisson models by sex
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Multilevel poisson models for neighborhood indicators and resident perceptions stratified by sex (census tract random intercept)
 #| code-summary: Multilevel poisson models for neighborhood indicators and resident perceptions stratified by sex (census tract random intercept)
 #| warning: false
@@ -1542,11 +1542,11 @@ final_table_ct_poisson_sex %>%
     table.width = gt::pct(100)
   ) %>%
   gt::tab_source_note(
-    source_note = "Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model stratified by sex, with a random intercept for census tract, adjusted for age group, race/color, and education."
+    source_note = "Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Multilevel Poisson models stratified by sex with a random intercept for census tract, adjusted for age group, race/color, and education."
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Multilevel poisson models for neighborhood indicators and resident perceptions stratified by sex (census tract nested within city)
 #| code-summary: Multilevel poisson models for neighborhood indicators and resident perceptions stratified by sex (census tract nested within city)
 #| warning: false
@@ -1661,14 +1661,14 @@ final_table_ct_city_poisson_sex %>%
     table.width = gt::pct(100)
   ) %>%
   gt::tab_source_note(
-    source_note = "Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model stratified by sex, with a random intercept for census tract nested within cities, adjusted for age group, race/color, and education."
+    source_note = "Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Multilevel Poisson models stratified by sex with random intercepts for census tracts nested within cities, adjusted for age group, race/color, and education."
   )
-```
-
-
-## Multilevel Poisson models by age group
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Multilevel poisson models for neighborhood indicators and resident perceptions stratified by age group (census tract random intercept)
 #| code-summary: Multilevel poisson models for neighborhood indicators and resident perceptions stratified by age group (census tract random intercept)
 #| warning: false
@@ -1783,11 +1783,11 @@ final_table_ct_poisson_age %>%
   gt::cols_width(label ~ gt::px(500)) %>%
   gt::tab_options(table.width = gt::pct(100)) %>%
   gt::tab_source_note(
-    source_note="Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model stratified by age group, with a random intercept for census tract, adjusted for sex, race/color, and education."
+    source_note="Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Multilevel Poisson models stratified by age group with a random intercept for census tract, adjusted for sex, race/color, and education."
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Multilevel poisson models for neighborhood indicators and resident perceptions stratified by age group (census tract nested within city)
 #| code-summary: Multilevel poisson models for neighborhood indicators and resident perceptions stratified by age group (census tract nested within city)
 #| warning: false
@@ -1878,14 +1878,14 @@ final_table_ct_city_poisson_age %>%
   gt::cols_width(label ~ gt::px(500)) %>%
   gt::tab_options(table.width = gt::pct(100)) %>%
   gt::tab_source_note(
-    source_note="Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model stratified by age group, with a random intercept for census tract nested within cities, adjusted for sex, race/color, and education."
+    source_note="Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Multilevel Poisson models stratified by age group with random intercepts for census tracts nested within cities, adjusted for sex, race/color, and education."
   )
-```
-
-
-## Falls in the last 12 months
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Falls in the last 12 months stratified by sex
 #| code-summary: Falls in the last 12 months stratified by sex
 #| warning: false
@@ -1959,9 +1959,9 @@ df %>%
   gt::tab_source_note(
     source_note = "Note: Missing values for Falls in the last 12 months (n=36). P-values were calculated using the Rao–Scott adjusted chi-square test."
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Multilevel logistic models for neighborhood indicators and falls
 #| code-summary: Multilevel logistic models for neighborhood indicators and falls (census tract random intercept)
 #| warning: false
@@ -2052,12 +2052,12 @@ final_table_ct %>%
   gt::tab_source_note(
     source_note = "Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel model with a random intercept for census tract, adjusted for sex, age group, race/color, and education."
   )
-```
-
-
-## Self-rated health
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Self-rated health stratified by sex
 #| code-summary: Self-rated health stratified by sex
 #| warning: false
@@ -2124,9 +2124,9 @@ df %>%
   gt::tab_source_note(
     source_note = "Note: Missing values for Self-rated health (n=28). P-values were calculated using the Rao–Scott adjusted chi-square test."
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Multilevel poisson models for neighborhood indicators and self-rated health (census tract random intercept)
 #| code-summary: Multilevel poisson models for neighborhood indicators and self-rated health (census tract random intercept)
 #| warning: false
@@ -2223,9 +2223,9 @@ final_table_ct_poisson %>%
   gt::tab_source_note(
     source_note = "Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel Poisson model with a random intercept for census tract, adjusted for sex, age group, race/color, and education."
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Multilevel poisson models for neighborhood indicators and self-rated health stratified by sex (census tract random intercept)
 #| code-summary: Multilevel poisson models for neighborhood indicators and self-rated health stratified by sex (census tract random intercept)
 #| warning: false
@@ -2335,4 +2335,6 @@ final_table_ct_poisson_sex %>%
   gt::tab_source_note(
     source_note = "Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Multilevel Poisson models stratified by sex with a random intercept for census tract, adjusted for age group, race/color, and education."
   )
-```
+#
+#
+#
