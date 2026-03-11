@@ -2150,7 +2150,7 @@ exposure_labels <- c(
 )
 
 outcome_labels <- c(
-  aas = "Self-rated health (Excellent to Fair vs. Poor/Very Poor)"
+  aas = "Self-rated health"
 )
 
 exposure_vars <- names(exposure_labels)
