@@ -2127,12 +2127,12 @@ df %>%
 ```
 
 ```{r}
-#| label: Multilevel poisson models for neighborhood indicators and self-rated health (census tract random intercept)
-#| code-summary: Multilevel poisson models for neighborhood indicators and self-rated health (census tract random intercept)
+#| label: Multilevel logistic models for neighborhood indicators and self-rated health (census tract random intercept)
+#| code-summary: Multilevel logistic models for neighborhood indicators and self-rated health (census tract random intercept)
 #| warning: false
 #| message: false
 
-analysis_data_ct_poisson <- df %>%
+analysis_data_ct <- df %>%
   filter(zona == 1, !is.na(identificador)) %>%
   mutate(
     census_tract = factor(setor),
@@ -2158,7 +2158,7 @@ outcome_vars <- names(outcome_labels)
 
 adjustments <- c("sexo", "faixaetaria", "cor_raca", "escolaridade2")
 
-run_model_row_ct_poisson <- function(outcome_var, exp_var) {
+run_model_row_ct <- function(outcome_var, exp_var) {
 
   model_formula <- as.formula(
     paste(outcome_var, "~", exp_var, "+",
@@ -2166,10 +2166,10 @@ run_model_row_ct_poisson <- function(outcome_var, exp_var) {
           "+ (1 | census_tract)")
   )
 
-  model_fit_ct_poisson <- glmmTMB(
+  model_fit_ct <- glmmTMB(
     formula = model_formula,
-    data = analysis_data_ct_poisson,
-    family = poisson(link = "log"),
+    data = analysis_data_ct,
+    family = binomial(link = "logit"),
     weights = normalized_weight
   )
 
@@ -2177,7 +2177,7 @@ run_model_row_ct_poisson <- function(outcome_var, exp_var) {
   lbl_list[[exp_var]] <- exposure_labels[[exp_var]]
 
   tbl_regression(
-    model_fit_ct_poisson,
+    model_fit_ct,
     include = all_of(exp_var),
     exponentiate = TRUE,
     label = lbl_list,
@@ -2192,24 +2192,24 @@ run_model_row_ct_poisson <- function(outcome_var, exp_var) {
     ) %>%
     modify_header(
       label = "**Neighborhood indicators**",
-      estimate = "**PR**",
+      estimate = "**OR**",
       ci = "**95% CI**"
     )
 }
 
-table_list_ct_poisson <- map(outcome_vars, function(out_v) {
+table_list_ct <- map(outcome_vars, function(out_v) {
 
-  sub_tables <- map(exposure_vars, ~run_model_row_ct_poisson(out_v, .x))
+  sub_tables <- map(exposure_vars, ~run_model_row_ct(out_v, .x))
   tbl_stack(sub_tables)
 
 })
 
-final_table_ct_poisson <- tbl_stack(
-  tbls = table_list_ct_poisson,
+final_table_ct <- tbl_stack(
+  tbls = table_list_ct,
   group_header = outcome_labels[outcome_vars]
 )
 
-final_table_ct_poisson %>%
+final_table_ct %>%
   as_gt() %>%
   gt::cols_hide(
     columns = matches("^group")
@@ -2221,17 +2221,17 @@ final_table_ct_poisson %>%
     table.width = gt::pct(100)
   ) %>%
   gt::tab_source_note(
-    source_note = "Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel Poisson model with a random intercept for census tract, adjusted for sex, age group, race/color, and education."
+    source_note = "Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel logistic model with a random intercept for census tract, adjusted for sex, age group, race/color, and education."
   )
 ```
 
 ```{r}
-#| label: Multilevel poisson models for neighborhood indicators and self-rated health stratified by sex (census tract random intercept)
-#| code-summary: Multilevel poisson models for neighborhood indicators and self-rated health stratified by sex (census tract random intercept)
+#| label: Multilevel logistic models for neighborhood indicators and self-rated health stratified by sex (census tract random intercept)
+#| code-summary: Multilevel logistic models for neighborhood indicators and self-rated health stratified by sex (census tract random intercept)
 #| warning: false
 #| message: false
 
-analysis_data_ct_poisson_sex <- df %>%
+analysis_data_ct_sex <- df %>%
   filter(zona == 1, !is.na(identificador)) %>%
   mutate(
     census_tract = factor(setor),
@@ -2257,9 +2257,9 @@ outcome_vars  <- names(outcome_labels)
 
 adjustments <- c("faixaetaria", "cor_raca", "escolaridade2")
 
-run_model_row_ct_poisson_sex <- function(outcome_var, exp_var, sex_value) {
+run_model_row_ct_sex <- function(outcome_var, exp_var, sex_value) {
 
-  data_strata <- analysis_data_ct_poisson_sex %>%
+  data_strata <- analysis_data_ct_sex %>%
     filter(sexo == sex_value)
 
   model_formula <- as.formula(
@@ -2268,10 +2268,10 @@ run_model_row_ct_poisson_sex <- function(outcome_var, exp_var, sex_value) {
           "+ (1 | census_tract)")
   )
 
-  model_fit_ct_poisson_sex <- glmmTMB(
+  model_fit_ct_sex <- glmmTMB(
     formula = model_formula,
     data = data_strata,
-    family = poisson(link = "log"),
+    family = binomial(link = "logit"),
     weights = normalized_weight
   )
 
@@ -2279,7 +2279,7 @@ run_model_row_ct_poisson_sex <- function(outcome_var, exp_var, sex_value) {
   lbl_list[[exp_var]] <- exposure_labels[[exp_var]]
 
   tbl_regression(
-    model_fit_ct_poisson_sex,
+    model_fit_ct_sex,
     include = all_of(exp_var),
     exponentiate = TRUE,
     label = lbl_list,
@@ -2294,7 +2294,7 @@ run_model_row_ct_poisson_sex <- function(outcome_var, exp_var, sex_value) {
     ) %>%
     modify_header(
       label = "**Neighborhood indicators**",
-      estimate = "**PR**",
+      estimate = "**OR**",
       ci = "**95% CI**"
     )
 }
@@ -2304,8 +2304,8 @@ sex_labels <- c("Female", "Male")
 
 table_list_outcomes <- map(outcome_vars, function(out_v) {
 
-  female_tables <- map(exposure_vars, ~run_model_row_ct_poisson_sex(out_v, .x, 0))
-  male_tables   <- map(exposure_vars, ~run_model_row_ct_poisson_sex(out_v, .x, 1))
+  female_tables <- map(exposure_vars, ~run_model_row_ct_sex(out_v, .x, 0))
+  male_tables   <- map(exposure_vars, ~run_model_row_ct_sex(out_v, .x, 1))
 
   female_stack <- tbl_stack(female_tables)
   male_stack   <- tbl_stack(male_tables)
@@ -2316,12 +2316,12 @@ table_list_outcomes <- map(outcome_vars, function(out_v) {
   )
 })
 
-final_table_ct_poisson_sex <- tbl_stack(
+final_table_ct_sex <- tbl_stack(
   tbls = table_list_outcomes,
   group_header = outcome_labels[outcome_vars]
 )
 
-final_table_ct_poisson_sex %>%
+final_table_ct_sex %>%
   as_gt() %>%
   gt::cols_hide(
     columns = matches("^group")
@@ -2333,6 +2333,6 @@ final_table_ct_poisson_sex %>%
     table.width = gt::pct(100)
   ) %>%
   gt::tab_source_note(
-    source_note = "Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Multilevel Poisson models stratified by sex with a random intercept for census tract, adjusted for age group, race/color, and education."
+    source_note = "Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Multilevel logistic models stratified by sex with a random intercept for census tract, adjusted for age group, race/color, and education."
   )
 ```

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Amanda Silva Magalhães; Amanda Cristina de Souza Andrade; Bruno de Souza Moreira">
-<meta name="dcterms.date" content="2026-03-11">
+<meta name="dcterms.date" content="2026-03-12">
 
 <title>Neighborhood Characteristics and Residents’ Perceptions: The ELSI-Urbe Project</title>
 <style>
@@ -139,7 +139,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">March 11, 2026</p>
+      <p class="date">March 12, 2026</p>
     </div>
   </div>
   
@@ -19669,8 +19669,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell">
 <details class="code-fold">
-<summary>Multilevel poisson models for neighborhood indicators and self-rated health (census tract random intercept)</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>analysis_data_ct_poisson <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<summary>Multilevel logistic models for neighborhood indicators and self-rated health (census tract random intercept)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>analysis_data_ct <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(zona <span class="sc">==</span> <span class="dv">1</span>, <span class="sc">!</span><span class="fu">is.na</span>(identificador)) <span class="sc">%&gt;%</span></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">census_tract =</span> <span class="fu">factor</span>(setor),</span>
@@ -19696,7 +19696,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb27-24"><a href="#cb27-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-25"><a href="#cb27-25" aria-hidden="true" tabindex="-1"></a>adjustments <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"sexo"</span>, <span class="st">"faixaetaria"</span>, <span class="st">"cor_raca"</span>, <span class="st">"escolaridade2"</span>)</span>
 <span id="cb27-26"><a href="#cb27-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>run_model_row_ct_poisson <span class="ot">&lt;-</span> <span class="cf">function</span>(outcome_var, exp_var) {</span>
+<span id="cb27-27"><a href="#cb27-27" aria-hidden="true" tabindex="-1"></a>run_model_row_ct <span class="ot">&lt;-</span> <span class="cf">function</span>(outcome_var, exp_var) {</span>
 <span id="cb27-28"><a href="#cb27-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-29"><a href="#cb27-29" aria-hidden="true" tabindex="-1"></a>  model_formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(</span>
 <span id="cb27-30"><a href="#cb27-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste</span>(outcome_var, <span class="st">"~"</span>, exp_var, <span class="st">"+"</span>,</span>
@@ -19704,10 +19704,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb27-32"><a href="#cb27-32" aria-hidden="true" tabindex="-1"></a>          <span class="st">"+ (1 | census_tract)"</span>)</span>
 <span id="cb27-33"><a href="#cb27-33" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb27-34"><a href="#cb27-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a>  model_fit_ct_poisson <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
+<span id="cb27-35"><a href="#cb27-35" aria-hidden="true" tabindex="-1"></a>  model_fit_ct <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
 <span id="cb27-36"><a href="#cb27-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">formula =</span> model_formula,</span>
-<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> analysis_data_ct_poisson,</span>
-<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="fu">poisson</span>(<span class="at">link =</span> <span class="st">"log"</span>),</span>
+<span id="cb27-37"><a href="#cb27-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> analysis_data_ct,</span>
+<span id="cb27-38"><a href="#cb27-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"logit"</span>),</span>
 <span id="cb27-39"><a href="#cb27-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">weights =</span> normalized_weight</span>
 <span id="cb27-40"><a href="#cb27-40" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb27-41"><a href="#cb27-41" aria-hidden="true" tabindex="-1"></a></span>
@@ -19715,7 +19715,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb27-43"><a href="#cb27-43" aria-hidden="true" tabindex="-1"></a>  lbl_list[[exp_var]] <span class="ot">&lt;-</span> exposure_labels[[exp_var]]</span>
 <span id="cb27-44"><a href="#cb27-44" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-45"><a href="#cb27-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_regression</span>(</span>
-<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a>    model_fit_ct_poisson,</span>
+<span id="cb27-46"><a href="#cb27-46" aria-hidden="true" tabindex="-1"></a>    model_fit_ct,</span>
 <span id="cb27-47"><a href="#cb27-47" aria-hidden="true" tabindex="-1"></a>    <span class="at">include =</span> <span class="fu">all_of</span>(exp_var),</span>
 <span id="cb27-48"><a href="#cb27-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb27-49"><a href="#cb27-49" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> lbl_list,</span>
@@ -19730,24 +19730,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb27-58"><a href="#cb27-58" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
 <span id="cb27-59"><a href="#cb27-59" aria-hidden="true" tabindex="-1"></a>    <span class="fu">modify_header</span>(</span>
 <span id="cb27-60"><a href="#cb27-60" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> <span class="st">"**Neighborhood indicators**"</span>,</span>
-<span id="cb27-61"><a href="#cb27-61" aria-hidden="true" tabindex="-1"></a>      <span class="at">estimate =</span> <span class="st">"**PR**"</span>,</span>
+<span id="cb27-61"><a href="#cb27-61" aria-hidden="true" tabindex="-1"></a>      <span class="at">estimate =</span> <span class="st">"**OR**"</span>,</span>
 <span id="cb27-62"><a href="#cb27-62" aria-hidden="true" tabindex="-1"></a>      <span class="at">ci =</span> <span class="st">"**95% CI**"</span></span>
 <span id="cb27-63"><a href="#cb27-63" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb27-64"><a href="#cb27-64" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb27-65"><a href="#cb27-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-66"><a href="#cb27-66" aria-hidden="true" tabindex="-1"></a>table_list_ct_poisson <span class="ot">&lt;-</span> <span class="fu">map</span>(outcome_vars, <span class="cf">function</span>(out_v) {</span>
+<span id="cb27-66"><a href="#cb27-66" aria-hidden="true" tabindex="-1"></a>table_list_ct <span class="ot">&lt;-</span> <span class="fu">map</span>(outcome_vars, <span class="cf">function</span>(out_v) {</span>
 <span id="cb27-67"><a href="#cb27-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-68"><a href="#cb27-68" aria-hidden="true" tabindex="-1"></a>  sub_tables <span class="ot">&lt;-</span> <span class="fu">map</span>(exposure_vars, <span class="sc">~</span><span class="fu">run_model_row_ct_poisson</span>(out_v, .x))</span>
+<span id="cb27-68"><a href="#cb27-68" aria-hidden="true" tabindex="-1"></a>  sub_tables <span class="ot">&lt;-</span> <span class="fu">map</span>(exposure_vars, <span class="sc">~</span><span class="fu">run_model_row_ct</span>(out_v, .x))</span>
 <span id="cb27-69"><a href="#cb27-69" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_stack</span>(sub_tables)</span>
 <span id="cb27-70"><a href="#cb27-70" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb27-71"><a href="#cb27-71" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb27-72"><a href="#cb27-72" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-73"><a href="#cb27-73" aria-hidden="true" tabindex="-1"></a>final_table_ct_poisson <span class="ot">&lt;-</span> <span class="fu">tbl_stack</span>(</span>
-<span id="cb27-74"><a href="#cb27-74" aria-hidden="true" tabindex="-1"></a>  <span class="at">tbls =</span> table_list_ct_poisson,</span>
+<span id="cb27-73"><a href="#cb27-73" aria-hidden="true" tabindex="-1"></a>final_table_ct <span class="ot">&lt;-</span> <span class="fu">tbl_stack</span>(</span>
+<span id="cb27-74"><a href="#cb27-74" aria-hidden="true" tabindex="-1"></a>  <span class="at">tbls =</span> table_list_ct,</span>
 <span id="cb27-75"><a href="#cb27-75" aria-hidden="true" tabindex="-1"></a>  <span class="at">group_header =</span> outcome_labels[outcome_vars]</span>
 <span id="cb27-76"><a href="#cb27-76" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb27-77"><a href="#cb27-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-78"><a href="#cb27-78" aria-hidden="true" tabindex="-1"></a>final_table_ct_poisson <span class="sc">%&gt;%</span></span>
+<span id="cb27-78"><a href="#cb27-78" aria-hidden="true" tabindex="-1"></a>final_table_ct <span class="sc">%&gt;%</span></span>
 <span id="cb27-79"><a href="#cb27-79" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_gt</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb27-80"><a href="#cb27-80" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_hide</span>(</span>
 <span id="cb27-81"><a href="#cb27-81" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">matches</span>(<span class="st">"^group"</span>)</span>
@@ -19759,7 +19759,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb27-87"><a href="#cb27-87" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> gt<span class="sc">::</span><span class="fu">pct</span>(<span class="dv">100</span>)</span>
 <span id="cb27-88"><a href="#cb27-88" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb27-89"><a href="#cb27-89" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_source_note</span>(</span>
-<span id="cb27-90"><a href="#cb27-90" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="st">"Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel Poisson model with a random intercept for census tract, adjusted for sex, age group, race/color, and education."</span></span>
+<span id="cb27-90"><a href="#cb27-90" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="st">"Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel logistic model with a random intercept for census tract, adjusted for sex, age group, race/color, and education."</span></span>
 <span id="cb27-91"><a href="#cb27-91" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
@@ -20217,7 +20217,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <thead>
 <tr class="gt_col_headings header">
 <th id="label" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col"><strong>Neighborhood indicators</strong></th>
-<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>PR</strong></th>
+<th id="estimate" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>OR</strong></th>
 <th id="ci" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
 <th id="p.value" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
 </tr>
@@ -20228,43 +20228,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="gt_row_group_first even">
 <td class="gt_row gt_left" headers="Self-rated health  label">Pathway accessibility</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate">1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci">1.0 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value">0.037</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate">1.4</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci">1.2 - 1.7</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value">&lt;0.001</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="Self-rated health  label">Surface and continuity</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci">1.0 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value">0.249</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate">1.2</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci">1.0 - 1.3</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value">0.039</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="Self-rated health  label">Markings and controls</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci">1.0 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value">0.479</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate">1.2</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci">1.0 - 1.5</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value">0.085</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="Self-rated health  label">Speed and bus lane</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci">0.9 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value">0.731</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate">1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci">0.8 - 1.5</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value">0.702</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="Self-rated health  label">Absence of infrastructure and vegetation</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci">0.9 - 1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value">0.547</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate">0.9</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci">0.7 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value">0.167</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="Self-rated health  label">Absence of building and green spaces</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci">1.0 - 1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value">0.846</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate">0.9</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci">0.8 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value">0.534</td>
 </tr>
 </tbody><tfoot>
 <tr class="gt_sourcenotes odd">
-<td colspan="4" class="gt_sourcenote">Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel Poisson model with a random intercept for census tract, adjusted for sex, age group, race/color, and education.</td>
+<td colspan="4" class="gt_sourcenote">Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Each association was estimated in a separate multilevel logistic model with a random intercept for census tract, adjusted for sex, age group, race/color, and education.</td>
 </tr>
 </tfoot>
 
@@ -20275,8 +20275,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="cell">
 <details class="code-fold">
-<summary>Multilevel poisson models for neighborhood indicators and self-rated health stratified by sex (census tract random intercept)</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>analysis_data_ct_poisson_sex <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
+<summary>Multilevel logistic models for neighborhood indicators and self-rated health stratified by sex (census tract random intercept)</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>analysis_data_ct_sex <span class="ot">&lt;-</span> df <span class="sc">%&gt;%</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(zona <span class="sc">==</span> <span class="dv">1</span>, <span class="sc">!</span><span class="fu">is.na</span>(identificador)) <span class="sc">%&gt;%</span></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
 <span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">census_tract =</span> <span class="fu">factor</span>(setor),</span>
@@ -20302,9 +20302,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>adjustments <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"faixaetaria"</span>, <span class="st">"cor_raca"</span>, <span class="st">"escolaridade2"</span>)</span>
 <span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>run_model_row_ct_poisson_sex <span class="ot">&lt;-</span> <span class="cf">function</span>(outcome_var, exp_var, sex_value) {</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>run_model_row_ct_sex <span class="ot">&lt;-</span> <span class="cf">function</span>(outcome_var, exp_var, sex_value) {</span>
 <span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>  data_strata <span class="ot">&lt;-</span> analysis_data_ct_poisson_sex <span class="sc">%&gt;%</span></span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>  data_strata <span class="ot">&lt;-</span> analysis_data_ct_sex <span class="sc">%&gt;%</span></span>
 <span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(sexo <span class="sc">==</span> sex_value)</span>
 <span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>  model_formula <span class="ot">&lt;-</span> <span class="fu">as.formula</span>(</span>
@@ -20313,10 +20313,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a>          <span class="st">"+ (1 | census_tract)"</span>)</span>
 <span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb28-37"><a href="#cb28-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>  model_fit_ct_poisson_sex <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
+<span id="cb28-38"><a href="#cb28-38" aria-hidden="true" tabindex="-1"></a>  model_fit_ct_sex <span class="ot">&lt;-</span> <span class="fu">glmmTMB</span>(</span>
 <span id="cb28-39"><a href="#cb28-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">formula =</span> model_formula,</span>
 <span id="cb28-40"><a href="#cb28-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> data_strata,</span>
-<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="fu">poisson</span>(<span class="at">link =</span> <span class="st">"log"</span>),</span>
+<span id="cb28-41"><a href="#cb28-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">family =</span> <span class="fu">binomial</span>(<span class="at">link =</span> <span class="st">"logit"</span>),</span>
 <span id="cb28-42"><a href="#cb28-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">weights =</span> normalized_weight</span>
 <span id="cb28-43"><a href="#cb28-43" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb28-44"><a href="#cb28-44" aria-hidden="true" tabindex="-1"></a></span>
@@ -20324,7 +20324,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb28-46"><a href="#cb28-46" aria-hidden="true" tabindex="-1"></a>  lbl_list[[exp_var]] <span class="ot">&lt;-</span> exposure_labels[[exp_var]]</span>
 <span id="cb28-47"><a href="#cb28-47" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-48"><a href="#cb28-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_regression</span>(</span>
-<span id="cb28-49"><a href="#cb28-49" aria-hidden="true" tabindex="-1"></a>    model_fit_ct_poisson_sex,</span>
+<span id="cb28-49"><a href="#cb28-49" aria-hidden="true" tabindex="-1"></a>    model_fit_ct_sex,</span>
 <span id="cb28-50"><a href="#cb28-50" aria-hidden="true" tabindex="-1"></a>    <span class="at">include =</span> <span class="fu">all_of</span>(exp_var),</span>
 <span id="cb28-51"><a href="#cb28-51" aria-hidden="true" tabindex="-1"></a>    <span class="at">exponentiate =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb28-52"><a href="#cb28-52" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> lbl_list,</span>
@@ -20339,7 +20339,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb28-61"><a href="#cb28-61" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
 <span id="cb28-62"><a href="#cb28-62" aria-hidden="true" tabindex="-1"></a>    <span class="fu">modify_header</span>(</span>
 <span id="cb28-63"><a href="#cb28-63" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> <span class="st">"**Neighborhood indicators**"</span>,</span>
-<span id="cb28-64"><a href="#cb28-64" aria-hidden="true" tabindex="-1"></a>      <span class="at">estimate =</span> <span class="st">"**PR**"</span>,</span>
+<span id="cb28-64"><a href="#cb28-64" aria-hidden="true" tabindex="-1"></a>      <span class="at">estimate =</span> <span class="st">"**OR**"</span>,</span>
 <span id="cb28-65"><a href="#cb28-65" aria-hidden="true" tabindex="-1"></a>      <span class="at">ci =</span> <span class="st">"**95% CI**"</span></span>
 <span id="cb28-66"><a href="#cb28-66" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb28-67"><a href="#cb28-67" aria-hidden="true" tabindex="-1"></a>}</span>
@@ -20349,8 +20349,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb28-71"><a href="#cb28-71" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-72"><a href="#cb28-72" aria-hidden="true" tabindex="-1"></a>table_list_outcomes <span class="ot">&lt;-</span> <span class="fu">map</span>(outcome_vars, <span class="cf">function</span>(out_v) {</span>
 <span id="cb28-73"><a href="#cb28-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-74"><a href="#cb28-74" aria-hidden="true" tabindex="-1"></a>  female_tables <span class="ot">&lt;-</span> <span class="fu">map</span>(exposure_vars, <span class="sc">~</span><span class="fu">run_model_row_ct_poisson_sex</span>(out_v, .x, <span class="dv">0</span>))</span>
-<span id="cb28-75"><a href="#cb28-75" aria-hidden="true" tabindex="-1"></a>  male_tables   <span class="ot">&lt;-</span> <span class="fu">map</span>(exposure_vars, <span class="sc">~</span><span class="fu">run_model_row_ct_poisson_sex</span>(out_v, .x, <span class="dv">1</span>))</span>
+<span id="cb28-74"><a href="#cb28-74" aria-hidden="true" tabindex="-1"></a>  female_tables <span class="ot">&lt;-</span> <span class="fu">map</span>(exposure_vars, <span class="sc">~</span><span class="fu">run_model_row_ct_sex</span>(out_v, .x, <span class="dv">0</span>))</span>
+<span id="cb28-75"><a href="#cb28-75" aria-hidden="true" tabindex="-1"></a>  male_tables   <span class="ot">&lt;-</span> <span class="fu">map</span>(exposure_vars, <span class="sc">~</span><span class="fu">run_model_row_ct_sex</span>(out_v, .x, <span class="dv">1</span>))</span>
 <span id="cb28-76"><a href="#cb28-76" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-77"><a href="#cb28-77" aria-hidden="true" tabindex="-1"></a>  female_stack <span class="ot">&lt;-</span> <span class="fu">tbl_stack</span>(female_tables)</span>
 <span id="cb28-78"><a href="#cb28-78" aria-hidden="true" tabindex="-1"></a>  male_stack   <span class="ot">&lt;-</span> <span class="fu">tbl_stack</span>(male_tables)</span>
@@ -20361,12 +20361,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb28-83"><a href="#cb28-83" aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb28-84"><a href="#cb28-84" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb28-85"><a href="#cb28-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-86"><a href="#cb28-86" aria-hidden="true" tabindex="-1"></a>final_table_ct_poisson_sex <span class="ot">&lt;-</span> <span class="fu">tbl_stack</span>(</span>
+<span id="cb28-86"><a href="#cb28-86" aria-hidden="true" tabindex="-1"></a>final_table_ct_sex <span class="ot">&lt;-</span> <span class="fu">tbl_stack</span>(</span>
 <span id="cb28-87"><a href="#cb28-87" aria-hidden="true" tabindex="-1"></a>  <span class="at">tbls =</span> table_list_outcomes,</span>
 <span id="cb28-88"><a href="#cb28-88" aria-hidden="true" tabindex="-1"></a>  <span class="at">group_header =</span> outcome_labels[outcome_vars]</span>
 <span id="cb28-89"><a href="#cb28-89" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb28-90"><a href="#cb28-90" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb28-91"><a href="#cb28-91" aria-hidden="true" tabindex="-1"></a>final_table_ct_poisson_sex <span class="sc">%&gt;%</span></span>
+<span id="cb28-91"><a href="#cb28-91" aria-hidden="true" tabindex="-1"></a>final_table_ct_sex <span class="sc">%&gt;%</span></span>
 <span id="cb28-92"><a href="#cb28-92" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_gt</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb28-93"><a href="#cb28-93" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">cols_hide</span>(</span>
 <span id="cb28-94"><a href="#cb28-94" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">matches</span>(<span class="st">"^group"</span>)</span>
@@ -20378,7 +20378,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb28-100"><a href="#cb28-100" aria-hidden="true" tabindex="-1"></a>    <span class="at">table.width =</span> gt<span class="sc">::</span><span class="fu">pct</span>(<span class="dv">100</span>)</span>
 <span id="cb28-101"><a href="#cb28-101" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
 <span id="cb28-102"><a href="#cb28-102" aria-hidden="true" tabindex="-1"></a>  gt<span class="sc">::</span><span class="fu">tab_source_note</span>(</span>
-<span id="cb28-103"><a href="#cb28-103" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="st">"Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Multilevel Poisson models stratified by sex with a random intercept for census tract, adjusted for age group, race/color, and education."</span></span>
+<span id="cb28-103"><a href="#cb28-103" aria-hidden="true" tabindex="-1"></a>    <span class="at">source_note =</span> <span class="st">"Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Multilevel logistic models stratified by sex with a random intercept for census tract, adjusted for age group, race/color, and education."</span></span>
 <span id="cb28-104"><a href="#cb28-104" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output-display">
@@ -20844,10 +20844,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div></th>
 </tr>
 <tr class="gt_col_headings even">
-<th id="estimate_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>PR</strong></th>
+<th id="estimate_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>OR</strong></th>
 <th id="ci_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
 <th id="p.value_1" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
-<th id="estimate_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>PR</strong></th>
+<th id="estimate_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>OR</strong></th>
 <th id="ci_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>95% CI</strong></th>
 <th id="p.value_2" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" scope="col"><strong>p-value</strong></th>
 </tr>
@@ -20858,61 +20858,61 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 <tr class="gt_row_group_first even">
 <td class="gt_row gt_left" headers="Self-rated health  label">Pathway accessibility</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_1">1.0 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.229</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_2">1.0 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.085</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.4</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">1.1 - 1.7</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.003</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.5</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">1.1 - 1.9</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.002</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="Self-rated health  label">Surface and continuity</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_1">1.0 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.479</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_2">1.0 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.345</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.2</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">1.0 - 1.4</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.072</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.2</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">0.9 - 1.5</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.142</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="Self-rated health  label">Markings and controls</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_1">0.9 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.783</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_2">1.0 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.436</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">0.9 - 1.4</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.405</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.3</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">0.9 - 1.8</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.111</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="Self-rated health  label">Speed and bus lane</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_1">0.9 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.814</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">0.7 - 1.6</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.658</td>
 <td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_2">0.9 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.867</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">0.6 - 1.7</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.940</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="Self-rated health  label">Absence of infrastructure and vegetation</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_1">0.9 - 1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.596</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_2">0.9 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.790</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">0.9</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">0.7 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.150</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_2">0.9</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">0.7 - 1.2</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.629</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="Self-rated health  label">Absence of building and green spaces</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_1">1.0 - 1.1</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.681</td>
-<td class="gt_row gt_center" headers="Self-rated health  estimate_2">1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  ci_2">0.9 - 1.0</td>
-<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.538</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_1">1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_1">0.9 - 1.3</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_1">0.479</td>
+<td class="gt_row gt_center" headers="Self-rated health  estimate_2">0.8</td>
+<td class="gt_row gt_center" headers="Self-rated health  ci_2">0.6 - 1.1</td>
+<td class="gt_row gt_center" headers="Self-rated health  p.value_2">0.145</td>
 </tr>
 </tbody><tfoot>
 <tr class="gt_sourcenotes odd">
-<td colspan="7" class="gt_sourcenote">Abbreviations: PR = Prevalence Ratio; CI = Confidence Interval. Multilevel Poisson models stratified by sex with a random intercept for census tract, adjusted for age group, race/color, and education.</td>
+<td colspan="7" class="gt_sourcenote">Abbreviations: OR = Odds Ratio; CI = Confidence Interval. Multilevel logistic models stratified by sex with a random intercept for census tract, adjusted for age group, race/color, and education.</td>
 </tr>
 </tfoot>
 
